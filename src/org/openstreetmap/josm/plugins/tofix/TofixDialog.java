@@ -24,6 +24,8 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.JosmAction;
+import org.openstreetmap.josm.actions.UploadAction;
 import org.openstreetmap.josm.gui.JosmUserIdentityManager;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.SideButton;
@@ -86,6 +88,7 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
     JosmUserIdentityManager josmUserIdentityManager = JosmUserIdentityManager.getInstance();
 
     TofixTask tofixTask = new TofixTask();
+    JosmAction upload = new UploadAction();
 
     public TofixDialog() {
 
@@ -118,7 +121,19 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                fixed();
+
+                new Thread(new Runnable() {
+                    public void run() {
+                        fixed();
+                    }
+                }).start();
+                new Thread(new Runnable() {
+                    public void run() {
+                        ActionEvent ae = null;
+                        upload.actionPerformed(ae);
+                    }
+                }).start();
+
             }
         });
 
@@ -238,6 +253,7 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+
             fixed();
         }
     }
