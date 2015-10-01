@@ -16,6 +16,16 @@ public class AccessToTask {
     private Long osm_obj_id;
     private String key;
 
+    private boolean show_pm; //variable que regula si el progress monitor se va a mostrar dependiedno a cada accion
+
+    public boolean isShow_pm() {
+        return show_pm;
+    }
+
+    public void setShow_pm(boolean fixed) {
+        this.show_pm = fixed;
+    }
+
     public AccessToTask(String task_id, String task_source, boolean access) {
         this.task_id = task_id;
         this.task_source = task_source;

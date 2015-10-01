@@ -24,10 +24,13 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.JosmAction;
+import org.openstreetmap.josm.actions.UploadAction;
 import org.openstreetmap.josm.gui.JosmUserIdentityManager;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.SideButton;
 import org.openstreetmap.josm.gui.dialogs.ToggleDialog;
+import org.openstreetmap.josm.gui.io.UploadDialog;
 import org.openstreetmap.josm.plugins.tofix.bean.AccessToTask;
 import org.openstreetmap.josm.plugins.tofix.bean.FixedBean;
 import org.openstreetmap.josm.plugins.tofix.bean.ListTaskBean;
@@ -84,8 +87,8 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
     JPanel panelslide = new JPanel(new GridLayout(1, 1));
 
     JosmUserIdentityManager josmUserIdentityManager = JosmUserIdentityManager.getInstance();
-
     TofixTask tofixTask = new TofixTask();
+    JosmAction upload = new UploadAction();
 
     public TofixDialog() {
 
@@ -118,7 +121,9 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                upload.actionPerformed(e);
                 fixed();
+
             }
         });
 
@@ -238,7 +243,9 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            upload.actionPerformed(e);
             fixed();
+
         }
     }
 
@@ -257,6 +264,8 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
             mainAccessToTask.setTask_name(listTaskBean.getTasks().get(cb.getSelectedIndex() - 1).getTitle());
             mainAccessToTask.setTask_id(listTaskBean.getTasks().get(cb.getSelectedIndex() - 1).getId());
             mainAccessToTask.setTask_source(listTaskBean.getTasks().get(cb.getSelectedIndex() - 1).getSource());
+            //primere desccarga el monitor progres se mostrara
+            mainAccessToTask.setShow_pm(true);
             get_new_item();
             skipButton.setEnabled(true);
             fixedButton.setEnabled(true);
@@ -287,19 +296,20 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
             trackBean.getAttributes().setUser(josmUserIdentityManager.getUserName());
             trackBean.getAttributes().setKey(mainAccessToTask.getKey());
             itemTrackController.send_track_skip(mainAccessToTask.getTrack_url(), trackBean);
+            mainAccessToTask.setShow_pm(true);
         }
         get_new_item();
     }
 
     public void fixed() {
         if (mainAccessToTask.isAccess()) {
-
-            Util.print(mainAccessToTask.getFixed_url());
-            Util.print(mainAccessToTask.getKey());
             FixedBean fixedBean = new FixedBean();
             fixedBean.setUser(josmUserIdentityManager.getUserName());
             fixedBean.setKey(mainAccessToTask.getKey());
             itemTrackController.send_track_fix(mainAccessToTask.getFixed_url(), fixedBean);
+
+            //Parameter if the next progress monitor will show or not
+            mainAccessToTask.setShow_pm(false);
         }
         get_new_item();
     }
@@ -311,6 +321,7 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
             NoterrorBean.setUser(josmUserIdentityManager.getUserName());
             NoterrorBean.setKey(mainAccessToTask.getKey());
             itemTrackController.send_track_noterror(mainAccessToTask.getNoterror_url(), NoterrorBean);
+            mainAccessToTask.setShow_pm(true);
 
         }
         get_new_item();

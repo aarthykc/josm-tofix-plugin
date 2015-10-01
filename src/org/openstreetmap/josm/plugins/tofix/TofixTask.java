@@ -7,7 +7,6 @@ import org.openstreetmap.josm.actions.downloadtasks.DownloadOsmTask;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.Node;
-import org.openstreetmap.josm.gui.io.UploadDialog;
 import org.openstreetmap.josm.plugins.tofix.bean.AccessToTask;
 import org.openstreetmap.josm.plugins.tofix.bean.items.Item;
 import org.openstreetmap.josm.plugins.tofix.bean.items.ItemKeeprightBean;
@@ -57,8 +56,7 @@ public class TofixTask {
         if (accessToTask.getTask_source().equals("components")) {
             accessToTask = work_smallcomponents(item.getItemSmallcomponents(), accessToTask, size);
         }
-        
-  UploadDialog.getUploadDialog().getChangeset().getCommentsCount();
+
         return accessToTask;
     }
 
@@ -67,7 +65,7 @@ public class TofixTask {
         node = itemUnconnectedBean.getValue().get_node();
         bounds = new Bounds(node.getCoor().toBBox(size).toRectangle());
         TofixDraw.draw_Node(tofixLayer, node.getCoor());
-        Download.Download(downloadOsmTask, bounds, itemUnconnectedBean.getValue().getNode_id());
+        Download.Download(downloadOsmTask, bounds, itemUnconnectedBean.getValue().getNode_id(),accessToTask.isShow_pm());
         return accessToTask;
     }
 
@@ -76,7 +74,7 @@ public class TofixTask {
         node = itemKeeprightBean.getValue().get_node();
         bounds = new Bounds(node.getCoor().toBBox(size).toRectangle());
         TofixDraw.draw_Node(tofixLayer, node.getCoor());
-        Download.Download(downloadOsmTask, bounds, itemKeeprightBean.getValue().getObject_id());
+        Download.Download(downloadOsmTask, bounds, itemKeeprightBean.getValue().getObject_id(),accessToTask.isShow_pm());
         return accessToTask;
 
     }
@@ -86,7 +84,7 @@ public class TofixTask {
         node = itemNycbuildingsBean.getValue().get_node();
         bounds = new Bounds(node.getCoor().toBBox(size).toRectangle());
         TofixDraw.draw_Node(tofixLayer, node.getCoor());
-        Download.Download(downloadOsmTask, bounds, itemNycbuildingsBean.getValue().osm_obj_id());
+        Download.Download(downloadOsmTask, bounds, itemNycbuildingsBean.getValue().osm_obj_id(),accessToTask.isShow_pm());
         return accessToTask;
     }
 
@@ -96,7 +94,8 @@ public class TofixTask {
         node = new Node(new LatLon(list.get(0).get(0).getCoor().lat(), list.get(0).get(0).getCoor().lon()));
         bounds = new Bounds(node.getCoor().toBBox(size).toRectangle());
         TofixDraw.draw_line(tofixLayer, node.getCoor(), list);
-        Download.Download(downloadOsmTask, bounds, 0x0L);//0x0L = null porque no exixte el id del objeto
+        
+        Download.Download(downloadOsmTask, bounds, 0x0L,accessToTask.isShow_pm());//0x0L = null porque no exixte el id del objeto
         return accessToTask;
     }
 
@@ -106,7 +105,7 @@ public class TofixTask {
         node = new Node(new LatLon(list.get(0).getCoor().lat(), list.get(0).getCoor().lon()));
         bounds = new Bounds(node.getCoor().toBBox(size).toRectangle());
         TofixDraw.draw_nodes(tofixLayer, node.getCoor(), list);
-        Download.Download(downloadOsmTask, bounds, 0x0L);//0x0L = null porque no exixte el id del objeto
+        Download.Download(downloadOsmTask, bounds, 0x0L,accessToTask.isShow_pm());//0x0L = null porque no exixte el id del objeto
         return accessToTask;
     }
 
@@ -115,7 +114,7 @@ public class TofixTask {
         node = itemStrava.getValue().get_node();
         bounds = new Bounds(node.getCoor().toBBox(size).toRectangle());
         TofixDraw.draw_Node(tofixLayer, node.getCoor());
-        Download.Download(downloadOsmTask, bounds, 0x0L);
+        Download.Download(downloadOsmTask, bounds, 0x0L,accessToTask.isShow_pm());
         return accessToTask;
     }
 
@@ -125,7 +124,7 @@ public class TofixTask {
         node = new Node(new LatLon(list.get(0).get(0).getCoor().lat(), list.get(0).get(0).getCoor().lon()));
         bounds = new Bounds(node.getCoor().toBBox(size).toRectangle());
         TofixDraw.draw_line(tofixLayer, node.getCoor(), list);
-        Download.Download(downloadOsmTask, bounds, 0x0L);//0x0L = null porque no exixte el id del objeto
+        Download.Download(downloadOsmTask, bounds, 0x0L,accessToTask.isShow_pm());//0x0L = null porque no exixte el id del objeto
         return accessToTask;
     }
 
