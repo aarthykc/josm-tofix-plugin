@@ -1,8 +1,6 @@
 package org.openstreetmap.josm.plugins.tofix;
 
-import java.awt.BorderLayout;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
@@ -13,6 +11,8 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import static javax.swing.Action.NAME;
 import static javax.swing.Action.SHORT_DESCRIPTION;
@@ -30,7 +30,6 @@ import org.openstreetmap.josm.gui.JosmUserIdentityManager;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.SideButton;
 import org.openstreetmap.josm.gui.dialogs.ToggleDialog;
-import org.openstreetmap.josm.gui.io.UploadDialog;
 import org.openstreetmap.josm.plugins.tofix.bean.AccessToTask;
 import org.openstreetmap.josm.plugins.tofix.bean.FixedBean;
 import org.openstreetmap.josm.plugins.tofix.bean.ListTaskBean;
@@ -59,7 +58,7 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
     private Shortcut skipShortcut = null;
     private Shortcut fixedShortcut = null;
     private Shortcut noterrorButtonShortcut = null;
-    JSlider slider = new JSlider(JSlider.HORIZONTAL, 1, 10, 9);
+    JSlider slider = new JSlider(JSlider.HORIZONTAL, 1, 5, 3);
 
     //size to download
     double zise = 0.01; //per default
@@ -90,6 +89,7 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
     TofixTask tofixTask = new TofixTask();
     JosmAction upload = new UploadAction();
 
+    //
     public TofixDialog() {
 
         super(tr("To-fix"), "icontofix", tr("Open to-fix window."),
@@ -121,9 +121,19 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                upload.actionPerformed(e);
-                fixed();
-
+                Thread thread_upload = new Thread(new Runnable() {
+                    public void run() {
+                        ActionEvent ae = null;
+                        upload.actionPerformed(ae);
+                    }
+                });
+                Thread thread_fixed = new Thread(new Runnable() {
+                    public void run() {
+                        fixed();
+                    }
+                });
+                thread_fixed.start();
+                thread_upload.start();
             }
         });
 
@@ -183,8 +193,8 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
             //slider.setLabelTable((slider.createStandardLabels(1)));
             Hashtable<Integer, JLabel> table = new Hashtable<Integer, JLabel>();
             table.put(1, new JLabel(tr("~.02")));
+            table.put(3, new JLabel("~.20"));
             table.put(5, new JLabel("~.40"));
-            table.put(10, new JLabel("~1.8"));
             slider.setLabelTable(table);
 
             slider.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -243,8 +253,19 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            upload.actionPerformed(e);
-            fixed();
+            Thread thread_upload = new Thread(new Runnable() {
+                public void run() {
+                    ActionEvent ae = null;
+                    upload.actionPerformed(ae);
+                }
+            });
+            Thread thread_fixed = new Thread(new Runnable() {
+                public void run() {
+                    fixed();
+                }
+            });
+            thread_fixed.start();
+            thread_upload.start();
 
         }
     }
@@ -307,7 +328,6 @@ public class TofixDialog extends ToggleDialog implements ActionListener {
             fixedBean.setUser(josmUserIdentityManager.getUserName());
             fixedBean.setKey(mainAccessToTask.getKey());
             itemTrackController.send_track_fix(mainAccessToTask.getFixed_url(), fixedBean);
-
             //Parameter if the next progress monitor will show or not
             mainAccessToTask.setShow_pm(false);
         }
